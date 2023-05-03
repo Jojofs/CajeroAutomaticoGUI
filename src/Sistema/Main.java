@@ -1,10 +1,10 @@
 package Sistema;
 
-import GUI.ATM;
+import GUI.Cajero;
 
 public class Main {
     public static void main(String args[]) {
-        ATM cajero = new ATM();
+        Cajero cajero = new Cajero();
         cajero.setVisible(true);
     }
 }
