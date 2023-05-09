@@ -12,7 +12,7 @@ public class Cliente {
     public Cliente() {
         this.saldo=0.00;
     }
-
+    
     public Cliente(String nombre, double saldo, int numeroCuenta, int pin) {
         this.nombre = nombre;
         this.saldo = saldo;

@@ -6,9 +6,11 @@ import java.text.DecimalFormat;
 import javax.swing.ImageIcon;
 
 public class Cajero extends javax.swing.JFrame {
+
     //Atributos
     private boolean opcionDepositar = false;
     private boolean opcionRetirar = false;
+    private boolean accionTarjeta = true;
     private String digitoCajero;
     private Cliente cuenta = new Cliente();
 
@@ -24,6 +26,7 @@ public class Cajero extends javax.swing.JFrame {
         lblSalir.setVisible(false);
         pnlTarjeta.setVisible(false);
     }
+
     //Métodos
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -607,25 +610,31 @@ public class Cajero extends javax.swing.JFrame {
     //---- Boton Ingresar
     private void btnIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarActionPerformed
         // Establecemos contraseña
-        String Pass;
+        String Pass = null;
         String Pin = "1234";
-        do {
-        // Aqui se obtiene la contraseña ingresada para comprobar los datos
-        Pass = new String(JOptionPane.showInputDialog("Ingrese código PIN:"));
-        if (Pass.equals(Pin)) {
-            cuenta.setNombre(JOptionPane.showInputDialog("Ingrese su nombre."));
-            cuenta.setNumeroCuenta(Integer.parseInt(JOptionPane.showInputDialog("Ingrese su número de cuenta.")));
-            pnlDatos.setVisible(true);
-            txtNombre.setText(cuenta.getNombre());
-            txtSaldo.setText(actualizarSaldo());
-            txtNoCuenta.setText(String.valueOf(cuenta.getNumeroCuenta()));
-            btnIngresar.setEnabled(false);
-            pnlTarjeta.setVisible(true);
-            habilitarBotones(0);
+        if (accionTarjeta == true) {
+            do {
+                // Aqui se obtiene la contraseña ingresada para comprobar los datos
+                Pass = new String(JOptionPane.showInputDialog("Ingrese código PIN:"));
+                if (Pass.equals(Pin)) {
+                    cuenta.setNombre(JOptionPane.showInputDialog("Ingrese su nombre."));
+                    cuenta.setNumeroCuenta(Integer.parseInt(JOptionPane.showInputDialog("Ingrese su número de cuenta.")));
+                    pnlDatos.setVisible(true);
+                    txtNombre.setText(cuenta.getNombre());
+                    txtSaldo.setText(actualizarSaldo());
+                    txtNoCuenta.setText(String.valueOf(cuenta.getNumeroCuenta()));
+                    btnIngresar.setEnabled(false);
+                    pnlTarjeta.setVisible(true);
+                    habilitarBotones(0,1);
+                } else {
+                    JOptionPane.showMessageDialog(this, "El codigo PIN ingresado es incorrecto.");
+                }
+            } while (!Pass.equals(Pin));
         } else {
-            JOptionPane.showMessageDialog(this, "El codigo PIN ingresado es incorrecto.");
+            pnlTarjeta.setVisible(false);
+            JOptionPane.showMessageDialog(this, "Gracias por usar nuestros servicios.");
+            System.exit(0);
         }
-        } while (!Pass.equals(Pin));
     }//GEN-LAST:event_btnIngresarActionPerformed
 
     //---- Boton Depositar
@@ -634,28 +643,30 @@ public class Cajero extends javax.swing.JFrame {
         opcionDepositar = true;
         txt_opcion.setText("Ingrese la cantidad a depositar:");
         pnlOpcion.setVisible(true);
-        habilitarBotones(1);
+        habilitarBotones(1,0);
     }//GEN-LAST:event_btnDepositarActionPerformed
 
     //-----Boton Retirar
     private void btnRetirarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRetirarActionPerformed
         opcionRetirar = true;
-
         if (cuenta.getSaldo() == 0) {
             JOptionPane.showMessageDialog(null, "Saldo insuficiente para hacer un retiro.");
         } else {
             pnlDatos.setVisible(false);
             txt_opcion.setText("Ingrese la cantidad a retirar:");
             pnlOpcion.setVisible(true);
-            habilitarBotones(1);
+            habilitarBotones(1,0);
         }
     }//GEN-LAST:event_btnRetirarActionPerformed
 
     //----Boton Salir
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        pnlTarjeta.setVisible(false);
-        JOptionPane.showMessageDialog(null, "Gracias por usar nuestros servicios, Puede retirar su tarjeta");
-        System.exit(0);
+        JOptionPane.showMessageDialog(this, "Puede retirar su tarjeta.");
+        btnIngresar.setText("Retirar");
+        pnlDatos.setVisible(false);
+        accionTarjeta = false;
+        btnIngresar.setEnabled(true);
+        habilitarBotones(0,0);
     }//GEN-LAST:event_btnSalirActionPerformed
 
     //----Boton #1
@@ -787,7 +798,7 @@ public class Cajero extends javax.swing.JFrame {
             txt_cantidad.setText("");
             pnlDatos.setVisible(true);
         }
-        habilitarBotones(0);
+        habilitarBotones(0,1);
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     //----Boton Borrar
@@ -806,7 +817,6 @@ public class Cajero extends javax.swing.JFrame {
         }
         if (opcionDepositar == true) {
             opcionDepositar = false;
-            //PENDIENTE crear mensajes por error de deposito
             if (cuenta.depositar(Double.parseDouble(String.valueOf(txt_cantidad.getText()))) == false) {
                 JOptionPane.showMessageDialog(null, "Ingresa una cantidad mayor a cero para realizar el deposito.");
             }
@@ -819,7 +829,7 @@ public class Cajero extends javax.swing.JFrame {
         txtSaldo.setText(actualizarSaldo());
         txt_cantidad.setText("");
         pnlDatos.setVisible(true);
-        habilitarBotones(0);
+        habilitarBotones(0,1);
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     public static void main(String args[]) {
@@ -847,44 +857,51 @@ public class Cajero extends javax.swing.JFrame {
             }
         });
     }
-    
-    public String actualizarSaldo(){
+
+    public String actualizarSaldo() {
         DecimalFormat formato = new DecimalFormat("#,##0.00");
-            String saldoFormateado = formato.format(cuenta.getSaldo());
-            return saldoFormateado;
+        String saldoFormateado = formato.format(cuenta.getSaldo());
+        return saldoFormateado;
     }
 
-    public void habilitarBotones(int n) {
+    public void habilitarBotones(int n,int m) {
         //Esta variable define si los botones se habilitan o no
-        boolean estado = false;
+        boolean estadoBotonesSuperiores = false;
+        boolean estadoBotonesInferiores = false;
         //Si n es igual a 1 los botones se habilitan
         if (n == 1) {
-            estado = true;
+            estadoBotonesInferiores = true;
         } else if (n == 0) { //si es igual a 0 los botones se deshabilitan
-            estado = false;
+            estadoBotonesInferiores = false;
+        }
+        //
+        if (m==1) {
+            estadoBotonesSuperiores = true;
+        } else if (m==0) {
+            estadoBotonesSuperiores = false;
         }
         //Cuando los botones numericos esten activados desaparecen los botones del menu y viceversa
         //Botones numericos
-        btn1.setEnabled(estado);
-        btn2.setEnabled(estado);
-        btn3.setEnabled(estado);
-        btn4.setEnabled(estado);
-        btn5.setEnabled(estado);
-        btn6.setEnabled(estado);
-        btn7.setEnabled(estado);
-        btn8.setEnabled(estado);
-        btn9.setEnabled(estado);
-        btn0.setEnabled(estado);
-        btnCancelar.setEnabled(estado);
-        btnBorrar.setEnabled(estado);
-        btnAceptar.setEnabled(estado);
+        btn1.setEnabled(estadoBotonesInferiores);
+        btn2.setEnabled(estadoBotonesInferiores);
+        btn3.setEnabled(estadoBotonesInferiores);
+        btn4.setEnabled(estadoBotonesInferiores);
+        btn5.setEnabled(estadoBotonesInferiores);
+        btn6.setEnabled(estadoBotonesInferiores);
+        btn7.setEnabled(estadoBotonesInferiores);
+        btn8.setEnabled(estadoBotonesInferiores);
+        btn9.setEnabled(estadoBotonesInferiores);
+        btn0.setEnabled(estadoBotonesInferiores);
+        btnCancelar.setEnabled(estadoBotonesInferiores);
+        btnBorrar.setEnabled(estadoBotonesInferiores);
+        btnAceptar.setEnabled(estadoBotonesInferiores);
         //Botones del menu
-        btnDepositar.setEnabled(!estado);
-        lblDepositar.setVisible(!estado);
-        btnRetirar.setEnabled(!estado);
-        lblRetirar.setVisible(!estado);
-        btnSalir.setEnabled(!estado);
-        lblSalir.setVisible(!estado);
+        btnDepositar.setEnabled(estadoBotonesSuperiores);
+        lblDepositar.setVisible(estadoBotonesSuperiores);
+        btnRetirar.setEnabled(estadoBotonesSuperiores);
+        lblRetirar.setVisible(estadoBotonesSuperiores);
+        btnSalir.setEnabled(estadoBotonesSuperiores);
+        lblSalir.setVisible(estadoBotonesSuperiores);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
